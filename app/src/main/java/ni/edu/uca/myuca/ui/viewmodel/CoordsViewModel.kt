@@ -53,7 +53,10 @@ class CoordsViewModel() : ViewModel() {
                     fechaNac, titulo, email, facultad
                 )
 
-                coordinadores.add(coordinador)
+                if (!coordinador.titulo.contains("msc", true)){
+                    coordinadores.add(coordinador)
+                }
+
             }
             return coordinadores
         } catch (e: JSONException) {
