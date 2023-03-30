@@ -30,4 +30,14 @@
             android:layout_marginEnd="10dp" />
     </LinearLayout>
 
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fabNuevoCoord"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:contentDescription="Agregar Coordinador"
+        android:text="Agregar Coordinador"
+        app:icon="@drawable/ic_baseline_person_add_24" />
+
 </FrameLayout>

@@ -9,5 +9,18 @@
         android:id="@+id/listaCoordsFragment"
         android:name="ni.edu.uca.myuca.ui.view.ListaCoordsFragment"
         android:label="fragment_lista_coords"
-        tools:layout="@layout/fragment_lista_coords" />
+        tools:layout="@layout/fragment_lista_coords" >
+        <action
+            android:id="@+id/action_listaCoordsFragment_to_addCoordsFragment"
+            app:destination="@id/addCoordsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addCoordsFragment"
+        android:name="ni.edu.uca.myuca.ui.view.AddCoordsFragment"
+        android:label="fragment_add_coords"
+        tools:layout="@layout/fragment_add_coords" >
+        <action
+            android:id="@+id/action_addCoordsFragment_to_listaCoordsFragment"
+            app:destination="@id/listaCoordsFragment" />
+    </fragment>
 </navigation>

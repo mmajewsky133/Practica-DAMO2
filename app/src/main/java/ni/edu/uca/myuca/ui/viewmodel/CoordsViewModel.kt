@@ -1,75 +1,101 @@
 package ni.edu.uca.myuca.ui.viewmodel
 
 import android.content.Context
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.android.volley.Request
-import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
+import kotlinx.coroutines.launch
 import ni.edu.uca.myuca.data.model.Coordinador
-import org.json.JSONException
-import org.json.JSONObject
+import ni.edu.uca.myuca.data.model.ListaCoordinador
+import ni.edu.uca.myuca.repository.Repository
+import retrofit2.Response
+import java.text.ParseException
+import java.text.SimpleDateFormat
 
-class CoordsViewModel() : ViewModel() {
+class CoordsViewModel(private val repository: Repository) : ViewModel() {
 
-    //Profe, aqui cambia la ip a su ip local y al puerto de apache que este usando
-    val url = "http://192.168.1.7:1527/Practica-DAMO2-API/CoordCRUD.php"
+    val listaCoords: MutableLiveData<Response<ListaCoordinador>> = MutableLiveData()
+    val coord: MutableLiveData<Response<Coordinador>> = MutableLiveData()
+    val addedCoord: MutableLiveData<Response<Coordinador>> = MutableLiveData()
+    val editedCoord: MutableLiveData<Response<Coordinador>> = MutableLiveData()
+    val deletedCoord: MutableLiveData<Response<Coordinador>> = MutableLiveData()
 
-    fun conseguirDatos(context: Context, listSubmitter: (ArrayList<Coordinador>) -> Unit) {
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd")
 
-        val queue = Volley.newRequestQueue(context)
-
-        val stringRequest = StringRequest(
-            Request.Method.GET, url,
-            { response ->
-                listSubmitter(parseJsonObj(response))
-            }
-        ) { error ->
-            println("error al obtener datos online")
+    fun conseguirCoordinadores() {
+        viewModelScope.launch {
+            val response = repository.getCoords()
+            listaCoords.value = response
         }
-        queue.add(stringRequest)
     }
 
-    private fun parseJsonObj(jsonRespose: String): ArrayList<Coordinador> {
-        var coordinadores =  ArrayList<Coordinador>()
-
-        try {
-            val coordinadorObj = JSONObject(jsonRespose).getJSONArray("coordinadores")
-
-            for (i in 0 until  coordinadorObj.length()) {
-                val jsonObj =  coordinadorObj.getJSONObject(i)
-
-                val id = jsonObj.getInt("id")
-                val nombres = jsonObj.getString("nombres")
-                val apellidos = jsonObj.getString("apellidos")
-                val fechaNac = jsonObj.getString("fechaNac")
-                val titulo = jsonObj.getString("titulo")
-                val email = jsonObj.getString("email")
-                val facultad = jsonObj.getString("facultad")
-
-                var coordinador = Coordinador(
-                    id, nombres, apellidos,
-                    fechaNac, titulo, email, facultad
-                )
-
-                if (!coordinador.titulo.contains("msc", true)){
-                    coordinadores.add(coordinador)
-                }
-
-            }
-            return coordinadores
-        } catch (e: JSONException) {
-            println("error al procesar json: ${e.message}")
+    fun conseguirCoordinador(id: Int) {
+        viewModelScope.launch {
+            val response = repository.getCoord(id)
+            coord.value = response
         }
+    }
 
-        return coordinadores
+    fun agregarCoordinador(coordinador: Coordinador) {
+        viewModelScope.launch {
+            val response = repository.addCoord(
+                coordinador.nombres,
+                coordinador.apellidos,
+                coordinador.fechaNac,
+                coordinador.titulo,
+                coordinador.email,
+                coordinador.facultad
+            )
+        }
+    }
+
+    fun editarCoordinador(coordinador: Coordinador) {
+        viewModelScope.launch {
+            val response = repository.editCoord(
+                coordinador.id,
+                coordinador.nombres,
+                coordinador.apellidos,
+                coordinador.fechaNac,
+                coordinador.titulo,
+                coordinador.email,
+                coordinador.facultad
+            )
+            editedCoord.value = response
+        }
+    }
+
+    fun eliminarCoordinador(id: Int) {
+        viewModelScope.launch {
+            val response = repository.deleteCoord(id)
+            deletedCoord.value = response
+        }
+    }
+
+    fun entradasValidas(
+        nombres: String,
+        apellidos: String,
+        fechaNac: String,
+        facultad: String,
+        titulo: String,
+        email: String
+    ): Boolean {
+        if ((nombres.isBlank() || apellidos.isBlank() || fechaNac.isBlank() ||
+                    facultad.isBlank() || titulo.isBlank() || email.isBlank())) {
+            try {
+                dateFormat.parse(fechaNac.trim())
+            } catch (e: ParseException){
+                return false
+            }
+        }
+        return true
     }
 
     companion object {
         val factory: ViewModelProvider.Factory = viewModelFactory {
             addInitializer(CoordsViewModel::class) {
-                CoordsViewModel()
+                CoordsViewModel(Repository())
             }
             build()
         }

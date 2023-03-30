@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import ni.edu.uca.myuca.data.model.Coordinador
 import ni.edu.uca.myuca.databinding.ItemCoordsBinding
 
-class CoordListCardAdapter :
+class CoordListCardAdapter(private val onCoordClicked: (Coordinador) -> Unit) :
     ListAdapter<Coordinador, CoordListCardAdapter.CoordViewHolder>(DiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CoordViewHolder {
@@ -20,6 +20,9 @@ class CoordListCardAdapter :
 
     override fun onBindViewHolder(holder: CoordViewHolder, position: Int) {
         val current = getItem(position)
+        holder.itemView.setOnClickListener {
+            onCoordClicked(current)
+        }
         holder.bind(current)
     }
 
