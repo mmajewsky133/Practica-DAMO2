@@ -14,7 +14,7 @@ import org.json.JSONObject
 class CoordsViewModel() : ViewModel() {
 
     //Profe, aqui cambia la ip a su ip local y al puerto de apache que este usando
-    val url = "http://192.168.1.7:1527/Practica-DAMO2-API/CoordCRUD.php"
+    val url = "http://192.168.1.7:1527/Practica-DAMO2-API/CoordGetSet.php"
 
     fun conseguirDatos(context: Context, listSubmitter: (ArrayList<Coordinador>) -> Unit) {
 
